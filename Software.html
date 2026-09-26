@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Management Software</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    font-family:Arial,sans-serif;
+    background:#f3f6fa;
+    color:#172033;
+}
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:240px;
+    background:#111827;
+    color:white;
+    padding:25px 15px;
+}
+.logo{
+    font-size:22px;
+    font-weight:bold;
+    padding:10px;
+    margin-bottom:25px;
+}
+.logo span{color:#38bdf8}
+.nav button{
+    width:100%;
+    background:transparent;
+    border:0;
+    color:#cbd5e1;
+    padding:13px 15px;
+    margin:4px 0;
+    text-align:left;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+}
+.nav button:hover,.nav button.active{
+    background:#2563eb;
+    color:white;
+}
+.main{
+    margin-left:240px;
+    padding:25px;
+}
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+.topbar h1{font-size:26px}
+.date{color:#64748b}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:25px;
+}
+.card{
+    background:white;
+    padding:22px;
+    border-radius:14px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+.card h4{color:#64748b;margin-bottom:10px}
+.card h2{font-size:28px}
+.blue{border-left:5px solid #2563eb}
+.green{border-left:5px solid #16a34a}
+.orange{border-left:5px solid #f59e0b}
+.red{border-left:5px solid #dc2626}
+
+.section{
+    display:none;
+    background:white;
+    padding:25px;
+    border-radius:14px;
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
+}
+.section.active{display:block}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+.btn{
+    border:0;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+}
+.btn.greenbtn{background:#16a34a}
+.btn.redbtn{background:#dc2626}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+input,select{
+    width:100%;
+    padding:11px;
+    border:1px solid #d1d5db;
+    border-radius:7px;
+    outline:none;
+}
+input:focus,select:focus{
+    border-color:#2563eb;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    padding:13px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+}
+th{
+    background:#f8fafc;
+    color:#475569;
+}
+.action{
+    padding:6px 10px;
+    border:0;
+    border-radius:5px;
+    cursor:pointer;
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.invoice-box{
+    border:1px solid #ddd;
+    padding:20px;
+    margin-top:20px;
+}
+.total{
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:20px;
+}
+
+@media(max-width:900px){
+    .sidebar{width:190px}
+    .main{margin-left:190px}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .form-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+    .main{margin-left:0}
+    .cards{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">SN <span>BUSINESS</span></div>
+
+    <div class="nav">
+        <button class="active" onclick="showSection('dashboard',this)">📊 Dashboard</button>
+        <button onclick="showSection('sales',this)">🛒 Sales</button>
+        <button onclick="showSection('purchases',this)">📦 Purchases</button>
+        <button onclick="showSection('products',this)">📋 Products / Stock</button>
+        <button onclick="showSection('customers',this)">👥 Customers</button>
+        <button onclick="showSection('vendors',this)">🚚 Vendors</button>
+        <button onclick="showSection('ledger',this)">📒 Ledger</button>
+        <button onclick="showSection('payments',this)">💰 Payments</button>
+    </div>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+    <h1>Business Management</h1>
+    <div class="date" id="date"></div>
+</div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
+
+<div class="cards">
+    <div class="card blue">
+        <h4>Total Sales</h4>
+        <h2>Rs <span id="totalSales">0</span></h2>
+    </div>
+
+    <div class="card green">
+        <h4>Total Purchases</h4>
+        <h2>Rs <span id="totalPurchases">0</span></h2>
+    </div>
+
+    <div class="card orange">
+        <h4>Customers</h4>
+        <h2 id="totalCustomers">0</h2>
+    </div>
+
+    <div class="card red">
+        <h4>Vendors</h4>
+        <h2 id="totalVendors">0</h2>
+    </div>
+</div>
+
+<h2>Business Overview</h2>
+<br>
+<p>Use the menu to manage sales, purchases, inventory, customers, vendors and ledgers.</p>
+
+</section>
+
+
+<!-- SALES -->
+<section id="sales" class="section">
+
+<div class="section-header">
+    <h2>Sales Invoice</h2>
+    <button class="btn" onclick="addSale()">Save Sale</button>
+</div>
+
+<div class="form-grid">
+    <div>
+        <label>Customer</label>
+        <select id="saleCustomer"></select>
+    </div>
+
+    <div>
+        <label>Product</label>
+        <select id="saleProduct" onchange="saleProductChanged()"></select>
+    </div>
+
+    <div>
+        <label>Quantity</label>
+        <input type="number" id="saleQty" value="1" min="1">
+    </div>
+
+    <div>
+        <label>Price</label>
+        <input type="number" id="salePrice">
+    </div>
+
+    <div>
+        <label>Payment</label>
+        <select id="salePayment">
+            <option>Cash</option>
+            <option>Credit</option>
+        </select>
+    </div>
+</div>
+
+<div class="invoice-box">
+    <h3>Sale Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="salesTable"></tbody>
+    </table>
+</div>
+
+</section>
+
+
+<!-- PURCHASE -->
+<section id="purchases" class="section">
+
+<div class="section-header">
+    <h2>Purchase</h2>
+    <button class="btn greenbtn" onclick="addPurchase()">Save Purchase</button>
+</div>
+
+<div class="form-grid">
+
+    <div>
+        <label>Vendor</label>
+        <select id="purchaseVendor"></select>
+    </div>
+
+    <div>
+        <label>Product</label>
+        <select id="purchaseProduct" onchange="purchaseProductChanged()"></select>
+    </div>
+
+    <div>
+        <label>Quantity</label>
+        <input type="number" id="purchaseQty" value="1" min="1">
+    </div>
+
+    <div>
+        <label>Purchase Price</label>
+        <input type="number" id="purchasePrice">
+    </div>
+
+    <div>
+        <label>Payment</label>
+        <select id="purchasePayment">
+            <option>Cash</option>
+            <option>Credit</option>
+        </select>
+    </div>
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="purchaseTable"></tbody>
+</table>
+
+</section>
+
+
+<!-- PRODUCTS -->
+<section id="products" class="section">
+
+<div class="section-header">
+    <h2>Products / Stock</h2>
+</div>
+
+<div class="form-grid">
+
+<input id="productName" placeholder="Product name">
+<input id="productBuy" type="number" placeholder="Purchase price">
+<input id="productSale" type="number" placeholder="Sale price">
+<input id="productStock" type="number" placeholder="Opening stock">
+
+</div>
+
+<button class="btn" onclick="addProduct()">Add Product</button>
+
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Purchase Price</th>
+<th>Sale Price</th>
+<th>Stock</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="productTable"></tbody>
+</table>
+
+</section>
+
+
+<!-- CUSTOMERS -->
+<section id="customers" class="section">
+
+<div class="section-header">
+<h2>Customers</h2>
+</div>
+
+<div class="form-grid">
+<input id="customerName" placeholder="Customer name">
+<input id="customerPhone" placeholder="Phone number">
+<input id="customerAddress" placeholder="Address">
+</div>
+
+<button class="btn" onclick="addCustomer()">Add Customer</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Address</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="customerTable"></tbody>
+</table>
+
+</section>
+
+
+<!-- VENDORS -->
+<section id="vendors" class="section">
+
+<div class="section-header">
+<h2>Vendors / Suppliers</h2>
+</div>
+
+<div class="form-grid">
+<input id="vendorName" placeholder="Vendor name">
+<input id="vendorPhone" placeholder="Phone number">
+<input id="vendorAddress" placeholder="Address">
+</div>
+
+<button class="btn" onclick="addVendor()">Add Vendor</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Address</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="vendorTable"></tbody>
+</table>
+
+</section>
+
+
+<!-- LEDGER -->
+<section id="ledger" class="section">
+
+<div class="section-header">
+<h2>Ledger</h2>
+</div>
+
+<div class="form-grid">
+<select id="ledgerType">
+<option value="customer">Customer</option>
+<option value="vendor">Vendor</option>
+</select>
+
+<select id="ledgerPerson"></select>
+
+<button class="btn" onclick="showLedger()">View Ledger</button>
+</div>
+
+<div id="ledgerResult"></div>
+
+</section>
+
+
+<!-- PAYMENTS -->
+<section id="payments" class="section">
+
+<div class="section-header">
+<h2>Payments / Receipts</h2>
+<button class="btn greenbtn" onclick="addPayment()">Save Payment</button>
+</div>
+
+<div class="form-grid">
+
+<select id="paymentPerson"></select>
+
+<select id="paymentType">
+<option value="received">Payment Received</option>
+<option value="paid">Payment Paid</option>
+</select>
+
+<input type="number" id="paymentAmount" placeholder="Amount">
+
+<input id="paymentNote" placeholder="Note">
+
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Type</th>
+<th>Amount</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody id="paymentTable"></tbody>
+</table>
+
+</section>
+
+</main>
+
+
+<script>
+
+// ================================
+// DATABASE
+// ================================
+
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let customers = JSON.parse(localStorage.getItem("customers")) || [];
+let vendors = JSON.parse(localStorage.getItem("vendors")) || [];
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
+let purchases = JSON.parse(localStorage.getItem("purchases")) || [];
+let payments = JSON.parse(localStorage.getItem("payments")) || [];
+
+function saveData(){
+    localStorage.setItem("products",JSON.stringify(products));
+    localStorage.setItem("customers",JSON.stringify(customers));
+    localStorage.setItem("vendors",JSON.stringify(vendors));
+    localStorage.setItem("sales",JSON.stringify(sales));
+    localStorage.setItem("purchases",JSON.stringify(purchases));
+    localStorage.setItem("payments",JSON.stringify(payments));
+}
+
+
+// ================================
+// NAVIGATION
+// ================================
+
+function showSection(id,btn){
+
+    document.querySelectorAll(".section")
+    .forEach(x=>x.classList.remove("active"));
+
+    document.getElementById(id).classList.add("active");
+
+    document.querySelectorAll(".nav button")
+    .forEach(x=>x.classList.remove("active"));
+
+    btn.classList.add("active");
+
+}
+
+
+// ================================
+// DATE
+// ================================
+
+document.getElementById("date").innerText =
+new Date().toLocaleDateString();
+
+
+// ================================
+// PRODUCTS
+// ================================
+
+function addProduct(){
+
+    let name=document.getElementById("productName").value;
+    let buy=Number(document.getElementById("productBuy").value);
+    let sale=Number(document.getElementById("productSale").value);
+    let stock=Number(document.getElementById("productStock").value);
+
+    if(!name) return alert("Enter product name");
+
+    products.push({
+        id:Date.now(),
+        name,
+        buy,
+        sale,
+        stock
+    });
+
+    saveData();
+
+    document.getElementById("productName").value="";
+    document.getElementById("productBuy").value="";
+    document.getElementById("productSale").value="";
+    document.getElementById("productStock").value="";
+
+    render();
+}
+
+
+function deleteProduct(id){
+
+    products=products.filter(x=>x.id!==id);
+
+    saveData();
+    render();
+}
+
+
+function renderProducts(){
+
+    let html="";
+
+    products.forEach(p=>{
+
+        html+=`
+        <tr>
+        <td>${p.name}</td>
+        <td>Rs ${p.buy}</td>
+        <td>Rs ${p.sale}</td>
+        <td>${p.stock}</td>
+        <td>
+        <button class="action"
+        onclick="deleteProduct(${p.id})">
+        Delete
+        </button>
+        </td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("productTable").innerHTML=html;
+
+}
+
+
+// ================================
+// CUSTOMERS
+// ================================
+
+function addCustomer(){
+
+    let name=document.getElementById("customerName").value;
+    let phone=document.getElementById("customerPhone").value;
+    let address=document.getElementById("customerAddress").value;
+
+    if(!name) return alert("Enter customer name");
+
+    customers.push({
+        id:Date.now(),
+        name,
+        phone,
+        address
+    });
+
+    saveData();
+
+    document.getElementById("customerName").value="";
+    document.getElementById("customerPhone").value="";
+    document.getElementById("customerAddress").value="";
+
+    render();
+}
+
+
+function deleteCustomer(id){
+
+    customers=customers.filter(x=>x.id!==id);
+
+    saveData();
+    render();
+
+}
+
+
+function renderCustomers(){
+
+    let html="";
+
+    customers.forEach(c=>{
+
+        html+=`
+        <tr>
+        <td>${c.name}</td>
+        <td>${c.phone}</td>
+        <td>${c.address}</td>
+        <td>
+        <button class="action"
+        onclick="deleteCustomer(${c.id})">
+        Delete
+        </button>
+        </td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("customerTable").innerHTML=html;
+
+}
+
+
+// ================================
+// VENDORS
+// ================================
+
+function addVendor(){
+
+    let name=document.getElementById("vendorName").value;
+    let phone=document.getElementById("vendorPhone").value;
+    let address=document.getElementById("vendorAddress").value;
+
+    if(!name) return alert("Enter vendor name");
+
+    vendors.push({
+        id:Date.now(),
+        name,
+        phone,
+        address
+    });
+
+    saveData();
+
+    document.getElementById("vendorName").value="";
+    document.getElementById("vendorPhone").value="";
+    document.getElementById("vendorAddress").value="";
+
+    render();
+}
+
+
+function deleteVendor(id){
+
+    vendors=vendors.filter(x=>x.id!==id);
+
+    saveData();
+    render();
+
+}
+
+
+function renderVendors(){
+
+    let html="";
+
+    vendors.forEach(v=>{
+
+        html+=`
+        <tr>
+        <td>${v.name}</td>
+        <td>${v.phone}</td>
+        <td>${v.address}</td>
+        <td>
+        <button class="action"
+        onclick="deleteVendor(${v.id})">
+        Delete
+        </button>
+        </td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("vendorTable").innerHTML=html;
+
+}
+
+
+// ================================
+// DROPDOWNS
+// ================================
+
+function updateDropdowns(){
+
+    saleCustomer.innerHTML=
+    customers.map(c=>
+    `<option value="${c.id}">${c.name}</option>`
+    ).join("");
+
+    saleProduct.innerHTML=
+    products.map(p=>
+    `<option value="${p.id}">${p.name}</option>`
+    ).join("");
+
+    purchaseVendor.innerHTML=
+    vendors.map(v=>
+    `<option value="${v.id}">${v.name}</option>`
+    ).join("");
+
+    purchaseProduct.innerHTML=
+    products.map(p=>
+    `<option value="${p.id}">${p.name}</option>`
+    ).join("");
+
+    ledgerPerson.innerHTML=
+    customers.map(c=>
+    `<option value="c-${c.id}">${c.name}</option>`
+    ).join("")
+    +
+    vendors.map(v=>
+    `<option value="v-${v.id}">${v.name}</option>`
+    ).join("");
+
+    paymentPerson.innerHTML=
+    customers.map(c=>
+    `<option value="c-${c.id}">${c.name}</option>`
+    ).join("")
+    +
+    vendors.map(v=>
+    `<option value="v-${v.id}">${v.name}</option>`
+    ).join("");
+
+}
+
+
+// ================================
+// SALE
+// ================================
+
+function saleProductChanged(){
+
+    let p=products.find(
+        x=>x.id==saleProduct.value
+    );
+
+    if(p)
+    salePrice.value=p.sale;
+
+}
+
+
+function addSale(){
+
+    if(products.length===0)
+        return alert("Add a product first");
+
+    let customerId=Number(saleCustomer.value);
+    let productId=Number(saleProduct.value);
+
+    let qty=Number(saleQty.value);
+    let price=Number(salePrice.value);
+
+    let customer=customers.find(x=>x.id===customerId);
+    let product=products.find(x=>x.id===productId);
+
+    if(!customer || !product)
+        return alert("Select customer and product");
+
+    if(product.stock<qty)
+        return alert("Not enough stock");
+
+    let total=qty*price;
+
+    product.stock-=qty;
+
+    sales.push({
+        id:Date.now(),
+        date:new Date().toLocaleString(),
+        customerId,
+        customer:customer.name,
+        productId,
+        product:product.name,
+        qty,
+        price,
+        total,
+        payment:salePayment.value
+    });
+
+    saveData();
+
+    alert("Sale saved successfully");
+
+    render();
+
+}
+
+
+// ================================
+// PURCHASE
+// ================================
+
+function purchaseProductChanged(){
+
+    let p=products.find(
+        x=>x.id==purchaseProduct.value
+    );
+
+    if(p)
+    purchasePrice.value=p.buy;
+
+}
+
+
+function addPurchase(){
+
+    if(products.length===0)
+        return alert("Add a product first");
+
+    let vendorId=Number(purchaseVendor.value);
+    let productId=Number(purchaseProduct.value);
+
+    let qty=Number(purchaseQty.value);
+    let price=Number(purchasePrice.value);
+
+    let vendor=vendors.find(x=>x.id===vendorId);
+    let product=products.find(x=>x.id===productId);
+
+    if(!vendor || !product)
+        return alert("Select vendor and product");
+
+    let total=qty*price;
+
+    product.stock+=qty;
+
+    purchases.push({
+        id:Date.now(),
+        date:new Date().toLocaleString(),
+        vendorId,
+        vendor:vendor.name,
+        productId,
+        product:product.name,
+        qty,
+        price,
+        total,
+        payment:purchasePayment.value
+    });
+
+    saveData();
+
+    alert("Purchase saved successfully");
+
+    render();
+
+}
+
+
+// ================================
+// LEDGER
+// ================================
+
+function showLedger(){
+
+    let value=ledgerPerson.value;
+
+    if(!value) return;
+
+    let type=value.substring(0,1);
+    let id=Number(value.substring(2));
+
+    let html="<table>";
+
+    html+=`
+    <tr>
+    <th>Date</th>
+    <th>Description</th>
+    <th>Debit</th>
+    <th>Credit</th>
+    <th>Balance</th>
+    </tr>
+    `;
+
+    let balance=0;
+
+    if(type==="c"){
+
+        sales
+        .filter(s=>s.customerId===id)
+        .forEach(s=>{
+
+            balance+=s.total;
+
+            html+=`
+            <tr>
+            <td>${s.date}</td>
+            <td>Sale - ${s.product}</td>
+            <td>Rs ${s.total}</td>
+            <td>-</td>
+            <td>Rs ${balance}</td>
+            </tr>
+            `;
+
+        });
+
+        payments
+        .filter(p=>p.personId===id && p.type==="received")
+        .forEach(p=>{
+
+            balance-=p.amount;
+
+            html+=`
+            <tr>
+            <td>${p.date}</td>
+            <td>Payment Received</td>
+            <td>-</td>
+            <td>Rs ${p.amount}</td>
+            <td>Rs ${balance}</td>
+            </tr>
+            `;
+
+        });
+
+    }
+
+    if(type==="v"){
+
+        purchases
+        .filter(p=>p.vendorId===id)
+        .forEach(p=>{
+
+            balance+=p.total;
+
+            html+=`
+            <tr>
+            <td>${p.date}</td>
+            <td>Purchase - ${p.product}</td>
+            <td>Rs ${p.total}</td>
+            <td>-</td>
+            <td>Rs ${balance}</td>
+            </tr>
+            `;
+
+        });
+
+        payments
+        .filter(p=>p.personId===id && p.type==="paid")
+        .forEach(p=>{
+
+            balance-=p.amount;
+
+            html+=`
+            <tr>
+            <td>${p.date}</td>
+            <td>Payment Paid</td>
+            <td>-</td>
+            <td>Rs ${p.amount}</td>
+            <td>Rs ${balance}</td>
+            </tr>
+            `;
+
+        });
+
+    }
+
+    html+="</table>";
+
+    document.getElementById("ledgerResult").innerHTML=html;
+
+}
+
+
+// ================================
+// PAYMENTS
+// ================================
+
+function addPayment(){
+
+    let value=paymentPerson.value;
+
+    if(!value)
+        return alert("Select person");
+
+    let id=Number(value.substring(2));
+    let amount=Number(paymentAmount.value);
+    let type=paymentType.value;
+    let note=paymentNote.value;
+
+    if(!amount)
+        return alert("Enter amount");
+
+    payments.push({
+        id:Date.now(),
+        date:new Date().toLocaleString(),
+        personId:id,
+        type,
+        amount,
+        note
+    });
+
+    saveData();
+
+    paymentAmount.value="";
+    paymentNote.value="";
+
+    render();
+
+}
+
+
+// ================================
+// RENDER
+// ================================
+
+function renderSales(){
+
+    let html="";
+
+    sales.forEach(s=>{
+
+        html+=`
+        <tr>
+        <td>${s.customer}</td>
+        <td>${s.product}</td>
+        <td>${s.qty}</td>
+        <td>Rs ${s.price}</td>
+        <td>Rs ${s.total}</td>
+        </tr>
+        `;
+
+    });
+
+    salesTable.innerHTML=html;
+
+}
+
+
+function renderPurchases(){
+
+    let html="";
+
+    purchases.forEach(p=>{
+
+        html+=`
+        <tr>
+        <td>${p.vendor}</td>
+        <td>${p.product}</td>
+        <td>${p.qty}</td>
+        <td>Rs ${p.price}</td>
+        <td>Rs ${p.total}</td>
+        </tr>
+        `;
+
+    });
+
+    purchaseTable.innerHTML=html;
+
+}
+
+
+function renderPayments(){
+
+    let html="";
+
+    payments.forEach(p=>{
+
+        let person =
+        customers.find(c=>c.id===p.personId) ||
+        vendors.find(v=>v.id===p.personId);
+
+        html+=`
+        <tr>
+        <td>${person ? person.name : ""}</td>
+        <td>${p.type}</td>
+        <td>Rs ${p.amount}</td>
+        <td>${p.note}</td>
+        </tr>
+        `;
+
+    });
+
+    paymentTable.innerHTML=html;
+
+}
+
+
+function updateDashboard(){
+
+    let saleTotal=sales.reduce(
+        (a,b)=>a+b.total,0
+    );
+
+    let purchaseTotal=purchases.reduce(
+        (a,b)=>a+b.total,0
+    );
+
+    totalSales.innerText=saleTotal.toLocaleString();
+    totalPurchases.innerText=purchaseTotal.toLocaleString();
+
+    totalCustomers.innerText=customers.length;
+    totalVendors.innerText=vendors.length;
+
+}
+
+
+function render(){
+
+    renderProducts();
+    renderCustomers();
+    renderVendors();
+    renderSales();
+    renderPurchases();
+    renderPayments();
+
+    updateDropdowns();
+    updateDashboard();
+
+}
+
+
+// START
+render();
+
+</script>
+
+</body>
+</html>
